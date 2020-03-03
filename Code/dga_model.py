@@ -7,7 +7,7 @@ from keras import regularizers
 from keras.metrics import sparse_categorical_accuracy
 from keras.callbacks import EarlyStopping
 from keras.layers import Conv1D, GRU, \
-    GlobalMaxPool1D, MaxPooling1D, Lambda
+    GlobalMaxPool1D, MaxPooling1D, Lambda, LSTM
 from keras.layers.merge import concatenate
 from sklearn import metrics
 from keras.models import Model
@@ -25,11 +25,11 @@ from keras.models import Sequential
 
 
 # Set GPU memory fraction
-config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.3
-config.gpu_options.allow_growth = True
-session = tf.Session(config=config)
-K.set_session(session)
+#config = tf.ConfigProto()
+#config.gpu_options.per_process_gpu_memory_fraction = 0.3
+#config.gpu_options.allow_growth = True
+#session = tf.Session(config=config)
+#K.set_session(session)
 
 def sum_1d(x):
     from keras import backend
@@ -137,16 +137,20 @@ def tunnel_model(input_shape):
                   optimizer='adam', metrics=['accuracy'])
     return model
 
-def lstm_model(input_shape):
+def lstm_model_woodbridge(input_shape):
 
     model=Sequential()
-    model.add(Embedding(max_features, 128, input_length=75))
+    #model.add(Embedding(max_features, 128, input_length=75))
+    model.add(Embedding(input_dim=input_shape[0], output_dim=128,
+                        input_length=input_shape[1], mask_zero=True))
+    #model.add(Embedding(input_shape[0], 128))    
     model.add(LSTM(128))
     model.add(Dropout(0.5))
-    model.add(Dense(1))
-    model.add(Activation(’sigmoid’))
-    model.compile(loss=’binary_crossentropy’,optimizer=’rmsprop’)
+    model.add(Dense(512,activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy',optimizer='rmsprop', metrics=['accuracy'])
 
+    return model
 
 #def multiclass_model(size_dense_1, size_dense_2, size_dense_3, filters, kernel_sizes, input_shape=(45,45), clear_session=True):
 def multiclass_model(input_shape=(45,45)):
@@ -231,12 +235,13 @@ def build_model_graph(input_shape, model):
               'old_model': build_old_model,
               'cacic_model': cacic_model,
               'tunnel_model': tunnel_model,
-              'multiclass_model': multiclass_model}
+              'multiclass_model': multiclass_model,
+              'lstm_model_woodbridge':lstm_model_woodbridge}
     print("Model",model,"selected")
     return models[model](input_shape)
 
 
-def train_model(model, x_train, y_train, validation_data, batch_size, checkpointer, epochs=20, with_weights=False):
+def train_model(model, x_train, y_train, validation_data, batch_size, epochs=20, with_weights=False):#, checkpointer):
     print("Training model...")
     print(y_train.shape)
     weights = with_weights and {0: 2, 1: 1} or None
@@ -247,8 +252,8 @@ def train_model(model, x_train, y_train, validation_data, batch_size, checkpoint
                         epochs=epochs,
                         class_weight=weights,
                         verbose=1,
-                        callbacks=[checkpointer, EarlyStopping(patience=5)],
                         shuffle=False)
+                        #callbacks=[checkpointer, EarlyStopping(patience=5)]
     #plot_training_curves(history)
 
 

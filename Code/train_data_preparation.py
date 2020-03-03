@@ -18,12 +18,12 @@ if __name__ == "__main__":
                      names=['domain', 'class'],
                      dtype={'domain': str, 'class': np.int8})
     #df = df.drop_duplicates('domain')
-    maxlen = 200
+    maxlen = 1000
     y = df['class'].values
     x = tokenize(df['domain'].values, maxlen)
     #print(len(x))
-    x_train, x_test, y_train, y_test = train_test_split(x, y, stratify=y, test_size=0.3)
-    x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, stratify=y_test, test_size=0.99)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, stratify=y, test_size=0.3)#
+    x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, stratify=y_test, test_size=0.99)#
 
 
     pickle.dump((x_train, y_train), open('train_data.pkl', 'wb'))

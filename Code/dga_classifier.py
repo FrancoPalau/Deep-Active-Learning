@@ -18,11 +18,11 @@ import tensorflow as tf
 
 
 #Set GPU memory fraction
-config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.3
-config.gpu_options.allow_growth = True
-session = tf.Session(config=config)
-K.set_session(session)
+#config = tf.ConfigProto()
+#config.gpu_options.per_process_gpu_memory_fraction = 0.3
+#config.gpu_options.allow_growth = True
+#session = tf.Session(config=config)
+#K.set_session(session)
 
 
 if __name__ == "__main__":
@@ -71,24 +71,24 @@ if __name__ == "__main__":
 
     train_x_data, train_y_data = pickle.load(open('train_data.pkl', 'rb'))
     valid_x_data, valid_y_data = pickle.load(open('valid_data.pkl', 'rb'))
-    maxlen = 200
+    maxlen = 1000
     charmap_size = len(get_valid_characters())
     print(train_x_data.shape, train_y_data.shape)
     print(valid_x_data.shape, valid_y_data.shape)
 
     if args.tunning:
-    	model = KerasClassifier(build_fn=tunnel_model, input_shape=(maxlen,maxlen), clear_session=True)
+    	model = KerasClassifier(build_fn=tunnel_model, input_shape=(50,maxlen), clear_session=True)
     	parameter_tunning(model, train_x_data, train_y_data)
     	sys.exit(0)
 
-    model = build_model_graph(input_shape=(maxlen,maxlen), model='tunnel_model')
+    model = build_model_graph(input_shape=(maxlen,maxlen), model='lstm_model_woodbridge')
     
-    checkpointer = ModelCheckpoint(filepath='/tmp/weights.model',
-                                   verbose=1, monitor='val_acc',
-                                   save_best_only=True)
+    #checkpointer = ModelCheckpoint(filepath='/tmp/weights.model',
+    #                               verbose=1, monitor='val_acc',
+    #                               save_best_only=True)
 
     train_model(model, train_x_data, train_y_data, validation_data=(valid_x_data, valid_y_data),
-                checkpointer=checkpointer, batch_size=10, epochs=20, with_weights=False)
+                 batch_size=256, epochs=20, with_weights=False)#, checkpointer=checkpointer)
 
     if args.save_model:
         model.save(args.save_model)
