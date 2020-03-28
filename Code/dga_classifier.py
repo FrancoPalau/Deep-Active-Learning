@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     train_x_data, train_y_data = pickle.load(open('train_data.pkl', 'rb'))
     valid_x_data, valid_y_data = pickle.load(open('valid_data.pkl', 'rb'))
-    maxlen = 1000
+    maxlen = 25
     charmap_size = len(get_valid_characters())
     print(train_x_data.shape, train_y_data.shape)
     print(valid_x_data.shape, valid_y_data.shape)
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     	parameter_tunning(model, train_x_data, train_y_data)
     	sys.exit(0)
 
-    model = build_model_graph(input_shape=(maxlen,maxlen), model='lstm_model_woodbridge')
+    model = build_model_graph(input_shape=(maxlen,maxlen), model='lstm_model_endgame')
     
     #checkpointer = ModelCheckpoint(filepath='/tmp/weights.model',
     #                               verbose=1, monitor='val_acc',

@@ -19,6 +19,7 @@ from sklearn.metrics import classification_report
 from layers.Attention import Attention
 from plots import plot_training_curves
 from sklearn.model_selection import GridSearchCV
+import pandas as pd
 
 # Imports to run old models
 from keras.models import Sequential
@@ -152,6 +153,17 @@ def lstm_model_woodbridge(input_shape):
 
     return model
 
+def lstm_model_endgame(input_shape):
+
+    model=Sequential()
+    model.add(Embedding(input_shape[0], 128, input_length=input_shape[1]))    
+    model.add(LSTM(128))
+    model.add(Dropout(0.5))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy',optimizer='rmsprop', metrics=['accuracy'])
+
+    return model
+
 #def multiclass_model(size_dense_1, size_dense_2, size_dense_3, filters, kernel_sizes, input_shape=(45,45), clear_session=True):
 def multiclass_model(input_shape=(45,45)):
     #if clear_session:
@@ -236,7 +248,8 @@ def build_model_graph(input_shape, model):
               'cacic_model': cacic_model,
               'tunnel_model': tunnel_model,
               'multiclass_model': multiclass_model,
-              'lstm_model_woodbridge':lstm_model_woodbridge}
+              'lstm_model_woodbridge':lstm_model_woodbridge,
+              'lstm_model_endgame':lstm_model_endgame}
     print("Model",model,"selected")
     return models[model](input_shape)
 
@@ -274,6 +287,10 @@ def test_binary_model(model, x_test, y_test, threshold=0.5):
     preds = [predict_class(x, thresh=threshold) for x in test_preds]
     print(metrics.confusion_matrix(y_test, preds))
     print(classification_report(y_test, preds, target_names=["normal","botnet"], digits=4))
+    report = classification_report(y_test, preds,
+            target_names=["normal","botnet"], digits=4, output_dict=True)
+    df = pd.DataFrame(report).transpose()
+    df.iloc[[0,3]].to_csv("test.csv",index=False, mode="a", header=False)
     tn, fp, fn, tp = metrics.confusion_matrix(y_test, preds).ravel()
     print("TN: ", tn)
     print("FP: ", fp)

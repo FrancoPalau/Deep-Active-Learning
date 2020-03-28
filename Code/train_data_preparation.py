@@ -18,7 +18,7 @@ if __name__ == "__main__":
                      names=['domain', 'class'],
                      dtype={'domain': str, 'class': np.int8})
     #df = df.drop_duplicates('domain')
-    maxlen = 1000
+    maxlen = 25
     y = df['class'].values
     x = tokenize(df['domain'].values, maxlen)
     #print(len(x))
