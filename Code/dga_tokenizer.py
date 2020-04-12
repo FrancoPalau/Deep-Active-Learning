@@ -31,6 +31,17 @@ def tokenize(data, maxlen=45):
     return sequence.pad_sequences(x_data, maxlen=maxlen, padding='post', truncating='post')
 
 
+def tokenize_with_padding(data, maxlen=45):
+    charmap = mapping()
+    x_data = [[charmap[c] for c in list(x)] for x in data]
+    return sequence.pad_sequences(x_data, maxlen=maxlen, padding='post', truncating='post').tolist()
+
+
+def tokenize_no_padding(data, maxlen=45):
+    charmap = mapping()
+    x_data = [[charmap[c] for c in list(x)] for x in data]
+    return x_data
+
 def onehot_encoder(categories):
     enc = OneHotEncoder(sparse=False)
     enc.fit(categories)

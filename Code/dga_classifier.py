@@ -81,14 +81,14 @@ if __name__ == "__main__":
     	parameter_tunning(model, train_x_data, train_y_data)
     	sys.exit(0)
 
-    model = build_model_graph(input_shape=(maxlen,maxlen), model='lstm_model_endgame')
+    model = build_model_graph(input_shape=(charmap_size,maxlen), model='lstm_model_endgame')
     
     #checkpointer = ModelCheckpoint(filepath='/tmp/weights.model',
     #                               verbose=1, monitor='val_acc',
     #                               save_best_only=True)
 
     train_model(model, train_x_data, train_y_data, validation_data=(valid_x_data, valid_y_data),
-                 batch_size=256, epochs=20, with_weights=False)#, checkpointer=checkpointer)
+                 batch_size=256, epochs=30, with_weights=False)#, checkpointer=checkpointer)
 
     if args.save_model:
         model.save(args.save_model)
