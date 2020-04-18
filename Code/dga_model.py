@@ -276,7 +276,7 @@ def predict_class(probability, thresh=0.5):
     return 1
 
 
-def test_binary_model(model, x_test, y_test, threshold=0.5):
+def test_binary_model(model, x_test, y_test, threshold=0.5, file_name=''):
     test_preds = model.predict(x_test, batch_size=4096)
 
     # fpr, tpr, thresholds = metrics.roc_curve(y_test, test_preds, pos_label=1, drop_intermediate=True)
@@ -287,11 +287,14 @@ def test_binary_model(model, x_test, y_test, threshold=0.5):
     preds = [predict_class(x, thresh=threshold) for x in test_preds]
     print(metrics.confusion_matrix(y_test, preds))
     print(classification_report(y_test, preds, target_names=["normal","botnet"], digits=4))
-    report = classification_report(y_test, preds,
-            target_names=["normal","botnet"], digits=4, output_dict=True)
-    df = pd.DataFrame(report).transpose()
-    df.columns = ["F1","Precision","Recall","Support"]
-    df.iloc[[0,3]].to_csv("test_25.csv",index=False, mode="a", header=False)
+    
+    if file_name:    
+        report = classification_report(y_test, preds,
+                target_names=["normal","botnet"], digits=4, output_dict=True)
+        df = pd.DataFrame(report).transpose()
+        df.columns = ["F1","Precision","Recall","Support"]
+        df.iloc[[0,3]].to_csv(file_name, index=False, mode="a", header=False)
+    
     tn, fp, fn, tp = metrics.confusion_matrix(y_test, preds).ravel()
     print("TN: ", tn)
     print("FP: ", fp)

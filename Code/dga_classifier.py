@@ -38,20 +38,26 @@ if __name__ == "__main__":
     					help="Genetate csv file with predictions")
     parser.add_argument("--tunning", action="store_true", 
     					help="Perform parameter sweep")
+    parser.add_argument("-r", "--results-file", help="Save results to this file")
+    parser.add_argument("--maxlen", type=int,
+                        help="Size of string to consider")  
     args = parser.parse_args()
+    
     threshold = .50
+    maxlen = args.maxlen
+    charmap_size = len(get_valid_characters())
 
     if args.test_only:
         model = load_model(args.model_file, custom_objects={'Attention': Attention})
         print(model.summary())
-        test_x_data, test_y_data = pickle.load(open('test_paper_tunnel.pkl', 'rb'))
+        test_x_data, test_y_data = pickle.load(open('test_data_only.pkl', 'rb'))
  
-        predictions = test_model(model, test_x_data, test_y_data, threshold)
+        predictions = test_binary_model(model, test_x_data, test_y_data,
+         								threshold, args.results_file)
 
         if args.csv_preds:
         	# To generate csv file with value predictions
         	df = pd.DataFrame(predictions)
-        	#print(df.head())
         	df.to_csv("preds_test.csv",index=False)
 
         test_x_data = [test_x_data[i] for i, x in enumerate(predictions)
@@ -71,8 +77,6 @@ if __name__ == "__main__":
 
     train_x_data, train_y_data = pickle.load(open('train_data.pkl', 'rb'))
     valid_x_data, valid_y_data = pickle.load(open('valid_data.pkl', 'rb'))
-    maxlen = 25
-    charmap_size = len(get_valid_characters())
     print(train_x_data.shape, train_y_data.shape)
     print(valid_x_data.shape, valid_y_data.shape)
 
